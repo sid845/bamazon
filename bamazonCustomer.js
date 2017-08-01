@@ -31,12 +31,49 @@ function bamazon()
     {
       type:"input",
       message:"Enter the ID of the product you want:",
-      name :"product"
+      name :"productId"
     },
     {
       type:"input",
       message:"Enter the Quantity:",
       name:"quantity"
     }
-  ]).then(function(answer))
+  ]).then(function(answer){
+    connection.query("SELECT stock_quantity,product_name from products where ?",{item_id:answer.productId},function(err,res){
+      if(err) throw err;
+      for(var i=0;i<res.length;i++){
+        if(res[i].stock_quantity>answer.quantity){
+          console.log("\n"+res[i].product_name+" was sold\n");
+          var a=res[i].stock_quantity-answer.quantity;
+          var b=answer.productId;
+          connection.query("UPDATE products SET ? WHERE ?",[{stock_quantity:a},{item_id:answer.productId}],function(err,res){
+            if(err) throw err;
+            console.log("row updated");
+          });
+        }
+        else {
+          console.log("Insufficient quantity!");
+        }
+      }
+    });
+  });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
